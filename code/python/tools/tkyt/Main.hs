@@ -3,6 +3,7 @@
 module Main where
 
 import Data.Aeson
+import Data.Aeson.Types (Parser)
 import qualified Data.ByteString.Lazy as B
 import Data.Text (Text, splitOn)
 import GHC.Generics
@@ -36,12 +37,15 @@ data YtPostSimple = YtPostSimple
 instance FromJSON YtPostList
 
 instance FromJSON YtPostSimple where
-    parseJSON = withObject "Comment" $ \v -> do
-        fullCid <- v .: "cid"
-        let cidComponents = splitOn "." fullCid
-        case cidComponents of
-            [cid] -> pure $ YtPostSimple{cid = fullCid, cidParent = Nothing}
-            [parent, cid] -> pure $ YtPostSimple{cid = fullCid, cidParent = Just parent}
+    parseJSON = withObject "PostSimple" parseYtPostSimpleObject
+
+parseYtPostSimpleObject :: Object -> Parser YtPostSimple
+parseYtPostSimpleObject obj = do
+    fullCid <- obj .: "cid"
+    let cidComponents = splitOn "." fullCid
+    case cidComponents of
+        [cid] -> pure $ YtPostSimple{cid = fullCid, cidParent = Nothing}
+        [parent, cid] -> pure $ YtPostSimple{cid = fullCid, cidParent = Just parent}
 
 main :: IO ()
 main = do
