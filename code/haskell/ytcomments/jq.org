@@ -1,0 +1,8 @@
+* CommentThreads
+  Commande pour récupérer tous les commentaires d'une vidéo
+  
+  : https GET "https://www.googleapis.com/youtube/v3/commentThreads?part=id,replies,snippet&videoId=6WMrfGRf9UA&key=$GOOGLE_API_KEY"
+
+  Expression =jq=
+  
+  : {etag, comments: .items|map(([.snippet.topLevelComment]+.replies.comments)|map({id,updatedAt:.snippet.updatedAt,text:.snippet.textOriginal,authorName:.snippet.authorDisplayName,authorImage:.snippet.authorProfileImageUrl}))}

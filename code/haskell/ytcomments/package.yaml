@@ -1,0 +1,67 @@
+name:                ytcomments
+version:             0.1.0.0
+github:              "kephas/fedb"
+license:             BSD3
+author:              "Pierre Thierry"
+maintainer:          "pierre@nothos.net"
+copyright:           "2024 Pierre Thierry"
+
+#extra-source-files:
+#- README.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/githubuser/back-hs#readme>
+
+language: GHC2021
+default-extensions:
+  - BlockArguments
+  - DisambiguateRecordFields
+  - DuplicateRecordFields
+  - NoFieldSelectors
+  - OverloadedRecordDot
+  - OverloadedRecordUpdate
+  - ImportQualifiedPost
+
+dependencies:
+- base >= 4.7 && < 5
+- aeson
+- servant
+- text
+- time
+- wai
+- warp
+
+library:
+  source-dirs: src
+
+executables:
+  ytcomments-server:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - base
+    - ytcomments
+
+tests:
+  ytcomments-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - base
+    - ytcomments
+    - hspec
+    - string-interpolate
