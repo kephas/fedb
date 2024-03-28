@@ -1,5 +1,7 @@
 module YTComments.Domain.Video where
 
+import Data.List (find)
+import Data.Maybe (isJust)
 import Data.Text (Text)
 
 -- | The video type is parameterized by the time type
@@ -20,3 +22,11 @@ data Comment t = Comment
     deriving (Eq, Show)
 
 data Image = ImageUrl Text deriving (Eq, Show)
+
+hasAuthor :: Text -> Thread t -> Bool
+hasAuthor name thread =
+    isJust $ find (by name) thread
+
+by :: Text -> Comment t -> Bool
+by name comment =
+    comment.authorName == name

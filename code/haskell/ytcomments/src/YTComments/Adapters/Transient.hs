@@ -16,13 +16,9 @@ findThreads :: [Video t] -> Text -> [Thread t]
 findThreads videos author = do
     video <- videos
     thread <- video.threads
-    if isJust $ find (by author) thread
+    if hasAuthor author thread
         then pure thread
         else []
 
 findActiveThreads :: [Video t] -> Text -> [Thread t]
 findActiveThreads = findThreads
-
-by :: Text -> Comment t -> Bool
-by name comment =
-    comment.authorName == name
