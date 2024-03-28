@@ -1,5 +1,6 @@
 module YTComments.Adapters.Transient where
 
+import Control.Monad (guard)
 import Data.Functor.Identity (Identity)
 import Data.List (find)
 import Data.Maybe (isJust)
@@ -16,9 +17,12 @@ findThreads :: [Video t] -> Text -> [Thread t]
 findThreads videos author = do
     video <- videos
     thread <- video.threads
-    if hasAuthor author thread
-        then pure thread
-        else []
+    guard $ hasAuthor author thread
+    pure thread
 
 findActiveThreads :: [Video t] -> Text -> [Thread t]
-findActiveThreads = findThreads
+findActiveThreads videos author = do
+    video <- videos
+    thread <- video.threads
+    guard $ isUnrepliedBy author thread
+    pure thread

@@ -23,9 +23,14 @@ data Comment t = Comment
 
 data Image = ImageUrl Text deriving (Eq, Show)
 
-hasAuthor :: Text -> Thread t -> Bool
+hasAuthor :: Text -> [Comment t] -> Bool
 hasAuthor name thread =
     isJust $ find (by name) thread
+
+isUnrepliedBy :: Text -> [Comment t] -> Bool
+isUnrepliedBy name thread =
+    case reverse thread of
+        comment : rest -> not (by name comment) && hasAuthor name rest
 
 by :: Text -> Comment t -> Bool
 by name comment =
