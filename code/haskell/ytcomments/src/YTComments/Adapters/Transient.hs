@@ -9,7 +9,7 @@ import YTComments.Ports.Activity
 
 newtype Transient t = Transient [Video t]
 
-instance Activity (Transient t) Identity t where
+instance (Monad m) => Activity (Transient t) m t where
     findCommentThreadsWith (Transient videos) name = pure $ findThreads videos name
     findCommentThreadsUnrepliedBy (Transient videos) name = pure $ findActiveThreads videos name
 
