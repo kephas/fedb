@@ -15,14 +15,14 @@ instance (Monad m) => Activity (Transient t) m t where
 
 findThreads :: [Video t] -> Text -> [Thread t]
 findThreads videos author = do
-    video <- videos
-    thread <- video.threads
-    guard $ hasAuthor author thread
-    pure thread
+  video <- videos
+  thread <- video.threads
+  guard $ hasAuthor author thread
+  pure thread
 
 findActiveThreads :: [Video t] -> Text -> [Thread t]
 findActiveThreads videos author = do
-    video <- videos
-    thread <- video.threads
-    guard $ isUnrepliedBy author thread
-    pure thread
+  video <- videos
+  thread <- video.threads
+  guard $ isUnrepliedBy author thread
+  pure thread
