@@ -1,16 +1,18 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Main where
 
-import Data.Functor.Identity (Identity (..))
-import Data.List (intersperse)
+import Control.Monad (forM_)
+import Data.IORef (IORef)
 import Data.Maybe (fromMaybe)
 import Data.String.Interpolate (i)
 import Data.Text (Text)
 import Data.Text qualified as T
 import Test.Hspec
-import YTComments.Adapters.Transient (Transient (..))
+import YTComments.Adapters.MemoryAPI (MemoryAPI, getDownloadedIds, newMemoryAPI)
+import YTComments.Adapters.Transient (newTransientIO)
 import YTComments.Ports.Activity (Activity (..), Comment (..), Image (..), Thread, Video (..))
 
 yt1 :: [FakeVideo]
@@ -21,12 +23,24 @@ yt1 =
     , Vid [Thr [b 3, a 4, c 6], Thr [c 2, b 4, c 7]]
     ]
 
+main :: IO ()
 main = hspec do
   describe "videos" do
-    it "finds threads by author" do
-      findCommentThreadsWith (Transient yt1) "Carol" `shouldBe` threads yt1 [(0, 0), (1, 0), (2, 0), (2, 1)]
-    it "finds unreplied threads" do
-      findCommentThreadsUnrepliedBy (Transient yt1) "Alice" `shouldBe` threads yt1 [(0, 0), (1, 1), (2, 0)]
+    it "finds threads" do
+      api <- newMemoryAPI yt1 :: IO (MemoryAPI IORef FakeTime)
+      transient <- newTransientIO api []
+      registerVideos transient ["v1", "v2", "v3"]
+      getRegisteredVideos transient
+      findCommentThreadsWith transient "Carol" `shouldReturn` threads yt1 [(0, 0), (1, 0), (2, 0), (2, 1)]
+      findCommentThreadsUnrepliedBy transient "Alice" `shouldReturn` threads yt1 [(0, 0), (1, 1), (2, 0)]
+  describe "API" do
+    it "downloads the registered videos" do
+      forM_ [["v1", "v2", "v3"], ["v1", "v2"]] \ids -> do
+        api <- newMemoryAPI yt1 :: IO (MemoryAPI IORef FakeTime)
+        transient <- newTransientIO api yt1
+        registerVideos transient ids
+        getRegisteredVideos transient
+        getDownloadedIds api `shouldReturn` ids
 
 type FakeYoutubeSpec = [FakeVideoSpec]
 newtype FakeVideoSpec = Vid [FakeThreadSpec]
@@ -37,7 +51,7 @@ type FakeTime = Int
 type FakeVideo = Video FakeTime
 
 fakeYoutube :: FakeYoutubeSpec -> [FakeVideo]
-fakeYoutube videoSpecs = zipWith fakeVideo [1 ..] videoSpecs
+fakeYoutube = zipWith fakeVideo [1 ..]
  where
   fakeVideo :: Int -> FakeVideoSpec -> FakeVideo
   fakeVideo num (Vid threadSpecs) = Video{id = [i|v#{num}|], threads = zipWith (fakeThread num) [1 ..] threadSpecs}
@@ -58,8 +72,8 @@ a time = ("Alice", time)
 b time = ("Bob", time)
 c time = ("Carol", time)
 
-threads :: [FakeVideo] -> [(Int, Int)] -> Identity [Thread FakeTime]
-threads videos pairs = pure $ map (thread videos) pairs
+threads :: [FakeVideo] -> [(Int, Int)] -> [Thread FakeTime]
+threads videos = map (thread videos)
 
 thread :: [FakeVideo] -> (Int, Int) -> Thread FakeTime
 thread videos (vidNum, thrNum) = (videos !! vidNum).threads !! thrNum

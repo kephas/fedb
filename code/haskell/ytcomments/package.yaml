@@ -25,17 +25,20 @@ default-extensions:
   - DuplicateRecordFields
   - NoFieldSelectors
   - OverloadedRecordDot
-  - OverloadedRecordUpdate
   - ImportQualifiedPost
 
 dependencies:
 - base >= 4.7 && < 5
 - aeson
+- monad-var
 - servant
 - text
 - time
 - wai
 - warp
+
+ghc-options:
+  - -Wall
 
 library:
   source-dirs: src

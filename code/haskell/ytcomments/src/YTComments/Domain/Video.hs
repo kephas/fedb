@@ -6,10 +6,12 @@ import Data.Text (Text)
 
 -- | The video type is parameterized by the time type
 data Video t = Video
-  { id :: Text
+  { id :: VideoId
   , threads :: [Thread t]
   }
   deriving (Eq, Show)
+
+type VideoId = Text
 
 type Thread t = [Comment t]
 
