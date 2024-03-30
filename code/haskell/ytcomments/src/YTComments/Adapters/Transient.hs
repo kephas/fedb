@@ -5,7 +5,7 @@ import Data.IORef (IORef, newIORef)
 import Data.Maybe (mapMaybe)
 import Data.Text (Text)
 import MonadVar (MonadRead (read), MonadWrite (write))
-import YTComments.Ports.Activity (Activity (..), Thread, Video (..), hasAuthor, isUnrepliedBy)
+import YTComments.Ports.Activity (Activity (..), Thread, Video (..), hasAuthor, isUnrepliedBy, oldestNewest)
 import YTComments.Ports.GetVideos (CacheItem, GetVideos (..), RegisteredVideo (..), ResponseWithCache (..), VideoId)
 import Prelude hiding (read)
 
@@ -24,6 +24,8 @@ instance (MonadRead m r, MonadWrite m r, GetVideos g m t) => Activity (Transient
   findCommentThreadsUnrepliedBy (Transient ref) name = do
     transient <- read ref
     pure $ findActiveThreads (actualVideos transient.videos) name
+  findOldestNewestThreadsUnrepliedBy transient count name = do
+    oldestNewest count <$> findCommentThreadsUnrepliedBy transient name
   registerVideos (Transient ref) ids = do
     transient <- read ref
     write ref $ transient{videos = map VideoToDownload ids}

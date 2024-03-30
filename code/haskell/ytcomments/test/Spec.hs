@@ -19,7 +19,7 @@ yt1 :: [FakeVideo]
 yt1 =
   fakeYoutube
     [ Vid [Thr [a 1, b 2, c 3], Thr [b 1, a 4]]
-    , Vid [Thr [c 2, a 5, b 6, a 7], Thr [a 2, b 6]]
+    , Vid [Thr [c 2, a 5, b 6, a 7], Thr [a 2, b 9]]
     , Vid [Thr [b 3, a 4, c 6], Thr [c 2, b 4, c 7]]
     ]
 
@@ -33,6 +33,8 @@ main = hspec do
       getRegisteredVideos transient
       findCommentThreadsWith transient "Carol" `shouldReturn` threads yt1 [(0, 0), (1, 0), (2, 0), (2, 1)]
       findCommentThreadsUnrepliedBy transient "Alice" `shouldReturn` threads yt1 [(0, 0), (1, 1), (2, 0)]
+      findOldestNewestThreadsUnrepliedBy transient 1 "Alice" `shouldReturn` threads yt1 [(0, 0), (1, 1)]
+      findOldestNewestThreadsUnrepliedBy transient 2 "Alice" `shouldReturn` threads yt1 [(0, 0), (2, 0), (1, 1)]
   describe "API" do
     it "downloads the registered videos" do
       forM_ [["v1", "v2", "v3"], ["v1", "v2"]] \ids -> do
