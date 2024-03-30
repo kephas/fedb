@@ -3,7 +3,7 @@
 module YTComments.Ports.Activity (
   Activity (..),
   Video (..),
-  Thread (..),
+  Thread,
   Comment (..),
   Image (..),
   hasAuthor,

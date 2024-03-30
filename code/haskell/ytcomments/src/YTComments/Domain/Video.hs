@@ -33,6 +33,7 @@ isUnrepliedBy :: Text -> [Comment t] -> Bool
 isUnrepliedBy name thread =
   case reverse thread of
     comment : rest -> not (by name comment) && hasAuthor name rest
+    [] -> False
 
 by :: Text -> Comment t -> Bool
 by name comment =
